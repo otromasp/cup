@@ -8,6 +8,7 @@ use App\Notifications\CasosUso\CU01GestionarAcceso\EnviarTokenRecuperacionContra
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Throwable;
 
 class SolicitarRecuperacionContrasenaAction
 {
@@ -38,6 +39,10 @@ class SolicitarRecuperacionContrasenaAction
             ]);
         });
 
-        $usuario->notify(new EnviarTokenRecuperacionContrasena($tokenPlano, $usuario->correo));
+        try {
+            $usuario->notify(new EnviarTokenRecuperacionContrasena($tokenPlano, $usuario->correo));
+        } catch (Throwable $exception) {
+            report($exception);
+        }
     }
 }

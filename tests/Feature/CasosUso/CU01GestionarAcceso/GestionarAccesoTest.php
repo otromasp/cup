@@ -8,6 +8,7 @@ use App\Notifications\CasosUso\CU01GestionarAcceso\EnviarTokenRecuperacionContra
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use RuntimeException;
 use Tests\TestCase;
 
 class GestionarAccesoTest extends TestCase
@@ -69,6 +70,24 @@ class GestionarAccesoTest extends TestCase
 
         $this->assertDatabaseCount('tokens_recuperacion_contrasena', 0);
         Notification::assertNothingSent();
+    }
+
+    public function test_solicitar_recuperacion_no_falla_si_el_correo_no_puede_enviarse()
+    {
+        $usuario = Usuario::factory()->create();
+
+        Notification::shouldReceive('send')
+            ->once()
+            ->andThrow(new RuntimeException('SMTP no disponible'));
+
+        $this->post('/forgot-password', ['email' => $usuario->email])
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('status');
+
+        $this->assertDatabaseHas('tokens_recuperacion_contrasena', [
+            'usuario_id' => $usuario->getKey(),
+            'estado' => TokenRecuperacionContrasena::ESTADO_VIGENTE,
+        ]);
     }
 
     public function test_token_valido_restablece_contrasena_y_queda_usado()

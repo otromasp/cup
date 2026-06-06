@@ -15,7 +15,7 @@ Cada CU debe quedar agrupado por carpeta para que sea visible desde el codigo:
 
 Un controlador que pertenece a un CU no debe quedar suelto en `app/Http/Controllers`. Si existe un controlador fuera de `CasosUso`, debe ser infraestructura del starter, configuracion, soporte tecnico o una pieza que todavia no fue alineada con el analisis.
 
-Los nombres del dominio deben seguir el vocabulario del modelo de analisis. Para CU1, los nombres de referencia son `Usuario`, `SesionUsuario`, `TokenRecuperacionContrasena`, `UI_Acceso`, `ControladorAcceso` y `Servicio SMTP Gmail`.
+Los nombres del dominio deben seguir el vocabulario del modelo de analisis. Para CU1, los nombres de referencia son `Usuario`, `SesionUsuario`, `TokenRecuperacionContrasena`, `UI_Acceso`, `ControladorAcceso` y `Servicio de correo`.
 
 La base de datos se mantiene consistente con el modelo conceptual. Las tablas de dominio nacen de entidades del analisis; las tablas tecnicas de Laravel, como cache, jobs o sesiones internas, deben tratarse como infraestructura y no como entidades del negocio. No guardar secretos reales en codigo, migraciones, seeders, tests ni documentacion.
 
