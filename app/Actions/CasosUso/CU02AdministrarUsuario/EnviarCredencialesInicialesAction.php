@@ -5,6 +5,7 @@ namespace App\Actions\CasosUso\CU02AdministrarUsuario;
 use App\Models\Usuario;
 use App\Notifications\CasosUso\CU02AdministrarUsuario\EnviarCredencialesIniciales;
 use Illuminate\Support\Str;
+use Throwable;
 
 class EnviarCredencialesInicialesAction
 {
@@ -12,7 +13,10 @@ class EnviarCredencialesInicialesAction
         private readonly GenerarContrasenaInicialAction $generarContrasenaInicial,
     ) {}
 
-    public function execute(Usuario $usuario, ?string $contrasenaInicial = null, bool $actualizarContrasena = false): string
+    /**
+     * @return array{contrasena_inicial: string, enviado: bool, error: ?string}
+     */
+    public function execute(Usuario $usuario, ?string $contrasenaInicial = null, bool $actualizarContrasena = false): array
     {
         $contrasenaInicial ??= $this->generarContrasenaInicial->execute();
 
@@ -23,10 +27,24 @@ class EnviarCredencialesInicialesAction
             ])->save();
         }
 
-        $usuario->notify(new EnviarCredencialesIniciales($usuario->correo, $contrasenaInicial));
+        try {
+            $usuario->notify(new EnviarCredencialesIniciales($usuario->correo, $contrasenaInicial));
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return [
+                'contrasena_inicial' => $contrasenaInicial,
+                'enviado' => false,
+                'error' => 'No se pudo enviar el correo de credenciales. Verifica la configuracion SMTP.',
+            ];
+        }
 
         $usuario->forceFill(['credenciales_enviadas_en' => now()])->save();
 
-        return $contrasenaInicial;
+        return [
+            'contrasena_inicial' => $contrasenaInicial,
+            'enviado' => true,
+            'error' => null,
+        ];
     }
 }

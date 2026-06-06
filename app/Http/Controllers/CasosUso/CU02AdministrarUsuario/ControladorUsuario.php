@@ -63,15 +63,13 @@ class ControladorUsuario extends Controller
     public function store(GuardarUsuarioRequest $request, CrearUsuarioAction $crearUsuario): RedirectResponse
     {
         $resultado = $crearUsuario->execute($request->datosUsuario());
-        $status = $resultado['credenciales_enviadas']
-            ? 'Usuario registrado correctamente. Credenciales enviadas al correo.'
-            : 'Usuario registrado correctamente.';
 
         return to_route('cu02.usuarios.index')
-            ->with('status', $status)
+            ->with('status', $this->statusCredenciales('Usuario registrado correctamente.', $resultado))
             ->with(
                 'contrasena_inicial',
-                $resultado['credenciales_enviadas'] && $resultado['contrasena_generada']
+                $resultado['contrasena_generada']
+                    && ($resultado['credenciales_enviadas'] || $resultado['error_envio_credenciales'] !== null)
                     ? $resultado['contrasena_inicial']
                     : null,
             );
@@ -95,12 +93,9 @@ class ControladorUsuario extends Controller
         $actor = $request->user();
 
         $resultado = $actualizarUsuario->execute($usuario, $request->datosUsuario(), $actor);
-        $status = $resultado['credenciales_enviadas']
-            ? 'Usuario actualizado correctamente. Credenciales enviadas al correo.'
-            : 'Usuario actualizado correctamente.';
 
         return back()
-            ->with('status', $status)
+            ->with('status', $this->statusCredenciales('Usuario actualizado correctamente.', $resultado))
             ->with('contrasena_inicial', $resultado['contrasena_inicial']);
     }
 
@@ -123,13 +118,26 @@ class ControladorUsuario extends Controller
         $actor = $request->user();
 
         $resultado = $cambiarEstado->execute($usuario, $request->estado(), $actor);
-        $status = $resultado['credenciales_enviadas']
-            ? 'Estado de cuenta actualizado. Credenciales enviadas al correo.'
-            : 'Estado de cuenta actualizado.';
 
         return back()
-            ->with('status', $status)
+            ->with('status', $this->statusCredenciales('Estado de cuenta actualizado.', $resultado))
             ->with('contrasena_inicial', $resultado['contrasena_inicial']);
+    }
+
+    /**
+     * @param  array{credenciales_enviadas: bool, error_envio_credenciales: ?string}  $resultado
+     */
+    private function statusCredenciales(string $mensajeBase, array $resultado): string
+    {
+        if ($resultado['credenciales_enviadas']) {
+            return $mensajeBase.' Credenciales enviadas al correo.';
+        }
+
+        if ($resultado['error_envio_credenciales'] !== null) {
+            return $mensajeBase.' No se pudo enviar el correo de credenciales; revisa SMTP y usa la contrasena mostrada.';
+        }
+
+        return $mensajeBase;
     }
 
     /**

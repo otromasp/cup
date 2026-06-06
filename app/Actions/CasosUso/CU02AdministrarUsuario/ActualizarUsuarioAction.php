@@ -13,7 +13,7 @@ class ActualizarUsuarioAction
 
     /**
      * @param  array{nombre: string, ci: ?string, correo: string, rol: string, estado: string}  $datos
-     * @return array{usuario: Usuario, contrasena_inicial: ?string, credenciales_enviadas: bool}
+     * @return array{usuario: Usuario, contrasena_inicial: ?string, credenciales_enviadas: bool, error_envio_credenciales: ?string}
      */
     public function execute(Usuario $usuario, array $datos, Usuario $actor): array
     {
@@ -23,23 +23,27 @@ class ActualizarUsuarioAction
         $usuario->forceFill($datos)->save();
         $contrasenaInicial = null;
         $credencialesEnviadas = false;
+        $errorEnvioCredenciales = null;
 
         if (
             $estadoAnterior !== Usuario::ESTADO_ACTIVO
             && $usuario->estado === Usuario::ESTADO_ACTIVO
             && $usuario->credenciales_enviadas_en === null
         ) {
-            $contrasenaInicial = $this->enviarCredencialesIniciales->execute(
+            $resultadoEnvio = $this->enviarCredencialesIniciales->execute(
                 usuario: $usuario,
                 actualizarContrasena: true,
             );
-            $credencialesEnviadas = true;
+            $contrasenaInicial = $resultadoEnvio['contrasena_inicial'];
+            $credencialesEnviadas = $resultadoEnvio['enviado'];
+            $errorEnvioCredenciales = $resultadoEnvio['error'];
         }
 
         return [
             'usuario' => $usuario,
             'contrasena_inicial' => $contrasenaInicial,
             'credenciales_enviadas' => $credencialesEnviadas,
+            'error_envio_credenciales' => $errorEnvioCredenciales,
         ];
     }
 

@@ -13,7 +13,7 @@ class CrearUsuarioAction
 
     /**
      * @param  array{nombre: string, ci: ?string, correo: string, rol: string, estado: string, contrasena_hash: ?string}  $datos
-     * @return array{usuario: Usuario, contrasena_inicial: string, contrasena_generada: bool, credenciales_enviadas: bool}
+     * @return array{usuario: Usuario, contrasena_inicial: string, contrasena_generada: bool, credenciales_enviadas: bool, error_envio_credenciales: ?string}
      */
     public function execute(array $datos): array
     {
@@ -23,10 +23,12 @@ class CrearUsuarioAction
         $datos['contrasena_hash'] = $contrasenaInicial;
         $usuario = Usuario::query()->create($datos);
         $credencialesEnviadas = false;
+        $errorEnvioCredenciales = null;
 
         if ($usuario->estado === Usuario::ESTADO_ACTIVO) {
-            $this->enviarCredencialesIniciales->execute($usuario, $contrasenaInicial);
-            $credencialesEnviadas = true;
+            $resultadoEnvio = $this->enviarCredencialesIniciales->execute($usuario, $contrasenaInicial);
+            $credencialesEnviadas = $resultadoEnvio['enviado'];
+            $errorEnvioCredenciales = $resultadoEnvio['error'];
         }
 
         return [
@@ -34,6 +36,7 @@ class CrearUsuarioAction
             'contrasena_inicial' => $contrasenaInicial,
             'contrasena_generada' => $contrasenaGenerada,
             'credenciales_enviadas' => $credencialesEnviadas,
+            'error_envio_credenciales' => $errorEnvioCredenciales,
         ];
     }
 }
