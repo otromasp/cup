@@ -48,6 +48,20 @@ class UsuarioFactory extends Factory
         ]);
     }
 
+    public function coordinador(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'rol' => Usuario::ROL_COORDINADOR,
+        ]);
+    }
+
+    public function docente(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'rol' => Usuario::ROL_DOCENTE,
+        ]);
+    }
+
     public function unverified(): static
     {
         return $this->state(fn (array $attributes): array => [

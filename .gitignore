@@ -26,3 +26,8 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+
+# Binaries & Temporary files
+/stripe
+/stripe.exe
+/cup

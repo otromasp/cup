@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-react';
+import { BookOpen, CalendarClock, CalendarDays, ClipboardList, Folder, GraduationCap, LayoutGrid, Settings2, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -30,16 +30,47 @@ const footerNavItems: NavItem[] = [
 
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
-    const items = auth.user?.rol === 'administrador'
-        ? [
-              ...mainNavItems,
-              {
-                  title: 'Usuarios',
-                  url: '/usuarios',
-                  icon: Users,
-              },
-          ]
-        : mainNavItems;
+    const items = [
+        ...mainNavItems,
+        ...(auth.user?.rol === 'administrador'
+            ? [
+                  {
+                      title: 'Usuarios',
+                      url: '/usuarios',
+                      icon: Users,
+                  },
+              ]
+            : []),
+        ...(auth.user?.rol === 'administrador' || auth.user?.rol === 'coordinador'
+            ? [
+                  {
+                      title: 'Gestion CUP',
+                      url: '/gestion-cup',
+                      icon: Settings2,
+                  },
+                  {
+                      title: 'Etapas CUP',
+                      url: '/etapas-gestion-cup',
+                      icon: CalendarDays,
+                  },
+                  {
+                      title: 'Docentes',
+                      url: '/docentes',
+                      icon: GraduationCap,
+                  },
+                  {
+                      title: 'Postulantes',
+                      url: '/postulantes-inscripciones',
+                      icon: ClipboardList,
+                  },
+                  {
+                      title: 'Grupos',
+                      url: '/planificacion-grupos',
+                      icon: CalendarClock,
+                  },
+              ]
+            : []),
+    ];
 
     return (
         <Sidebar collapsible="icon" variant="inset">

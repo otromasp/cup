@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\UsuarioFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -101,6 +102,32 @@ class Usuario extends Authenticatable
     public function esAdministrador(): bool
     {
         return $this->rol === self::ROL_ADMINISTRADOR;
+    }
+
+    public function esCoordinador(): bool
+    {
+        return $this->rol === self::ROL_COORDINADOR;
+    }
+
+    public function puedeConfigurarGestionCup(): bool
+    {
+        return $this->estado === self::ESTADO_ACTIVO
+            && ($this->esAdministrador() || $this->esCoordinador());
+    }
+
+    public function gestionesCup(): HasMany
+    {
+        return $this->hasMany(GestionCup::class, 'usuario_responsable_id', 'id_usuario');
+    }
+
+    public function docente(): HasOne
+    {
+        return $this->hasOne(Docente::class, 'usuario_id', 'id_usuario');
+    }
+
+    public function postulante(): HasOne
+    {
+        return $this->hasOne(Postulante::class, 'usuario_id', 'id_usuario');
     }
 
     public function tokensRecuperacion(): HasMany

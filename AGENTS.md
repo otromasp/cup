@@ -1,24 +1,4 @@
 <laravel-boost-guidelines>
-=== reglas cup ===
-
-# Estructura CUP
-
-El sistema se implementa siguiendo los casos de uso y clases de analisis definidos en `../documento/documentoDeTrabajo.md` y `../arquitectura/arquitectura.mdj`.
-
-Cada CU debe quedar agrupado por carpeta para que sea visible desde el codigo:
-
-- Controladores: `app/Http/Controllers/CasosUso/CU##_NombreDelCaso`
-- Form requests: `app/Http/Requests/CasosUso/CU##_NombreDelCaso`
-- Acciones de negocio: `app/Actions/CasosUso/CU##_NombreDelCaso`
-- Paginas Inertia: `resources/js/pages/casos-uso/cu##-nombre-del-caso`
-- Pruebas: `tests/Feature/CasosUso/CU##_NombreDelCaso`
-
-Un controlador que pertenece a un CU no debe quedar suelto en `app/Http/Controllers`. Si existe un controlador fuera de `CasosUso`, debe ser infraestructura del starter, configuracion, soporte tecnico o una pieza que todavia no fue alineada con el analisis.
-
-Los nombres del dominio deben seguir el vocabulario del modelo de analisis. Para CU1, los nombres de referencia son `Usuario`, `SesionUsuario`, `TokenRecuperacionContrasena`, `UI_Acceso`, `ControladorAcceso` y `Servicio de correo`.
-
-La base de datos se mantiene consistente con el modelo conceptual. Las tablas de dominio nacen de entidades del analisis; las tablas tecnicas de Laravel, como cache, jobs o sesiones internas, deben tratarse como infraestructura y no como entidades del negocio. No guardar secretos reales en codigo, migraciones, seeders, tests ni documentacion.
-
 === foundation rules ===
 
 # Laravel Boost Guidelines

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AsegurarAdministrador;
+use App\Http\Middleware\AsegurarConfiguradorGestionCup;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
 
+        $middleware->validateCsrfTokens(except: [
+            'stripe/webhook',
+        ]);
+
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
@@ -23,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'administrador' => AsegurarAdministrador::class,
+            'configurador.gestion-cup' => AsegurarConfiguradorGestionCup::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
